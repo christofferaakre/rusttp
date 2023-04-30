@@ -85,8 +85,9 @@ async fn main() -> io::Result<()> {
     pretty_env_logger::init_custom_env(LOG_VAR);
 
     let port = DEFAULT_PORT;
-    let listener = TcpListener::bind(format!("127.0.0.1:{port}")).await?;
-    info!("Listening on 127.0.0.1:{port}");
+    let bind_addr = format!("0.0.0.0:{port}");
+    let listener = TcpListener::bind(&bind_addr).await?;
+    info!("Listening on {bind_addr}");
 
     loop {
         let (socket, _) = listener.accept().await?;
