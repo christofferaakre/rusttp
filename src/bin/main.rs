@@ -1,11 +1,9 @@
+use http_server::http::{Message, Request, Response};
 use std::io::{self};
-use http_server::http::{Request, Response, Message};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::{TcpListener, TcpStream},
 };
-
-
 
 use log::{debug, info, warn};
 
@@ -15,15 +13,13 @@ async fn handle_request(request: Request) -> Response {
     let message = Message {
         version: request.message.version,
         headers: Vec::new(),
-        body: None
+        body: None,
     };
 
-    
     Response {
         message,
         status_code: http_server::http::StatusCode::OK,
     }
-
 }
 
 async fn process_socket(mut socket: TcpStream) {
@@ -39,20 +35,21 @@ async fn process_socket(mut socket: TcpStream) {
                     Ok(s) => {
                         debug!("Received data from {}: {}", peer_addr, s);
                         let request = Request::try_from(s.as_str());
-                        
+
                         match request {
                             Ok(request) => {
                                 info!("Request: {:?}", request);
                                 let response = handle_request(request).await;
-                                socket.write_all(response.serialize().as_slice()).await.expect("Failed to write response to socket");
+                                socket
+                                    .write_all(response.serialize().as_slice())
+                                    .await
+                                    .expect("Failed to write response to socket");
                             }
 
                             Err(err) => {
                                 warn!("Error handling request: {err:?}. Request: {s}");
                             }
                         }
-
-
                     }
                     Err(_err) => {
                         warn!(
@@ -69,9 +66,8 @@ async fn process_socket(mut socket: TcpStream) {
             debug!("Socket read error: {err:?}");
         }
     }
-    
-    info!("Connection to {peer_addr} terminated");
 
+    info!("Connection to {peer_addr} terminated");
 }
 
 const LOG_VAR: &str = "RUST_LOG";
