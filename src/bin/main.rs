@@ -11,6 +11,10 @@ use log::{debug, error, info, trace, warn};
 
 const DEFAULT_PORT: u16 = 8080;
 
+async fn handle_request(request: Request) -> String {
+   String::from("Hello world") 
+}
+
 async fn process_socket(mut socket: TcpStream) {
     let mut buffer = [0u8; 1024];
 
@@ -23,8 +27,21 @@ async fn process_socket(mut socket: TcpStream) {
                 match String::from_utf8(buffer[..n_bytes].to_vec()) {
                     Ok(s) => {
                         debug!("Received data from {}: {}", peer_addr, s);
-                        let request = Request::try_from(s);
-                        info!("Request: {:?}", request);
+                        let request = Request::try_from(s.as_str());
+                        
+                        match request {
+                            Ok(request) => {
+                                info!("Request: {:?}", request);
+                                let response = handle_request(request).await;
+                                socket.write_all(response.as_bytes()).await.expect("Failed to write response to socket");
+                            }
+
+                            Err(err) => {
+                                warn!("Error handling request: {err:?}. Request: {s}");
+                            }
+                        }
+
+
                     }
                     Err(_err) => {
                         warn!(

@@ -67,9 +67,9 @@ pub enum HttpRequestError {
     UnsupportedHttpVersion
 }
 
-impl TryFrom<String> for Request {
+impl TryFrom<&str> for Request {
     type Error = HttpRequestError;
-    fn try_from(input: String) -> Result<Self,  Self::Error> {
+    fn try_from(input: &str) -> Result<Self,  Self::Error> {
         // Example request string: 
         // GET / HTTP/1.1
         // Host: 127.0.0.1:8080
