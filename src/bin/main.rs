@@ -6,22 +6,26 @@ use tokio::{
 
 use std::time::{Duration, Instant};
 
-use log::{trace, debug, info, warn, error};
+use log::{debug, error, info, trace, warn};
 
 const DEFAULT_PORT: u16 = 8080;
 
 async fn process_socket(mut socket: TcpStream) {
     let mut buffer = [0u8; 1024];
 
-
-    let peer_addr =socket.peer_addr().unwrap();
+    let peer_addr = socket.peer_addr().unwrap();
     info!("New connection: {peer_addr:?}");
 
     loop {
         match socket.read(&mut buffer).await {
-            Ok(r) if r > 0 => {
-                info!("Received {} bytes: {:?}", r, &buffer[..r]);
-            }
+            Ok(r) if r > 0 => match String::from_utf8(buffer[..r].to_vec()) {
+                Ok(s) => {
+                    info!("Received data from {}: {}", peer_addr, s);
+                }
+                Err(err) => {
+                    debug!("Received {} bytes from {}: {:?}", r, peer_addr, &buffer[..r]);
+                }
+            },
             _ => {
                 info!("Connection terminated.");
                 break;
@@ -37,14 +41,12 @@ fn setup_logging_env() {
     if std::env::var(LOG_VAR).is_err() {
         std::env::set_var(LOG_VAR, DEFAULT_LOG_LEVEL);
     }
-
 }
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
     setup_logging_env();
     pretty_env_logger::init_custom_env(LOG_VAR);
-
 
     let port = DEFAULT_PORT;
     let listener = TcpListener::bind(format!("127.0.0.1:{port}")).await?;
