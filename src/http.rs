@@ -1,4 +1,4 @@
-use std::{fmt::{Display, Error}, fs::write};
+use std::{fmt::{Display}};
 
 use log::debug;
 
@@ -81,7 +81,7 @@ impl Display for Body {
         let s = String::from_utf8(self.contents.clone());
         match s {
             Ok(s) => f.write_str(s.as_str()),
-            Err(err) => write!(f, "Non-UTF8 bytes: {:?}", self.contents)
+            Err(_err) => write!(f, "Non-UTF8 bytes: {:?}", self.contents)
         }
     }
 }
@@ -169,7 +169,7 @@ impl TryFrom<&str> for Request {
     }
 }
 
-fn parse_body(lines: &mut std::iter::Peekable<std::str::Lines>) -> Option<Body> {
+fn parse_body(_lines: &mut std::iter::Peekable<std::str::Lines>) -> Option<Body> {
     None
 }
 

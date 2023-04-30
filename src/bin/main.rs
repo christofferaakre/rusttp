@@ -1,13 +1,13 @@
-use std::io::{self, ErrorKind};
+use std::io::{self};
 use http_server::http::{Request, Response, Message};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::{TcpListener, TcpStream},
 };
 
-use std::time::{Duration, Instant};
 
-use log::{debug, error, info, trace, warn};
+
+use log::{debug, info, warn};
 
 const DEFAULT_PORT: u16 = 8080;
 
@@ -18,11 +18,11 @@ async fn handle_request(request: Request) -> Response {
         body: None
     };
 
-    let response = Response {
+    
+    Response {
         message,
         status_code: http_server::http::StatusCode::OK,
-    };
-    response
+    }
 
 }
 
