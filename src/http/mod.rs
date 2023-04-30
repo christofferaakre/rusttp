@@ -1,16 +1,15 @@
 use std::fmt::Display;
 
+mod header;
+mod message;
 mod request;
 mod response;
-mod message;
-mod header;
 
+pub use header::parse_headers;
+pub use header::Header;
+pub use message::Message;
 pub use request::Request;
 pub use response::Response;
-pub use message::Message;
-pub use header::Header;
-pub use header::parse_headers;
-
 
 #[derive(Debug)]
 pub enum Method {
@@ -50,7 +49,6 @@ impl Display for StatusCode {
     }
 }
 
-
 #[derive(Debug)]
 pub struct Body {
     pub contents: Vec<u8>,
@@ -64,16 +62,11 @@ impl Display for Body {
         let s = String::from_utf8(self.contents.clone());
         match s {
             Ok(s) => f.write_str(s.as_str()),
-            Err(_err) => write!(f, "Non-UTF8 bytes: {:?}", self.contents)
+            Err(_err) => write!(f, "Non-UTF8 bytes: {:?}", self.contents),
         }
     }
 }
 
-
-
 pub fn parse_body(_lines: &mut std::iter::Peekable<std::str::Lines>) -> Option<Body> {
     None
 }
-
-
-
