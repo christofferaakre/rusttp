@@ -1,5 +1,5 @@
 use std::io::{self, ErrorKind};
-use http_server::http::Request;
+use http_server::http::{Request, Response, Message};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::{TcpListener, TcpStream},
@@ -11,8 +11,19 @@ use log::{debug, error, info, trace, warn};
 
 const DEFAULT_PORT: u16 = 8080;
 
-async fn handle_request(request: Request) -> String {
-   String::from("Hello world") 
+async fn handle_request(request: Request) -> Response {
+    let message = Message {
+        version: request.message.version,
+        headers: Vec::new(),
+        body: None
+    };
+
+    let response = Response {
+        message,
+        status_code: http_server::http::StatusCode::OK,
+    };
+    response
+
 }
 
 async fn process_socket(mut socket: TcpStream) {
@@ -33,7 +44,7 @@ async fn process_socket(mut socket: TcpStream) {
                             Ok(request) => {
                                 info!("Request: {:?}", request);
                                 let response = handle_request(request).await;
-                                socket.write_all(response.as_bytes()).await.expect("Failed to write response to socket");
+                                socket.write_all(response.serialize().as_slice()).await.expect("Failed to write response to socket");
                             }
 
                             Err(err) => {
