@@ -1,5 +1,5 @@
-use std::fmt::Display;
 use log::debug;
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub struct Header {

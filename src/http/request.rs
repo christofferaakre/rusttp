@@ -1,7 +1,7 @@
 use super::Message;
-use super::{parse_body, parse_headers};
 use super::Method;
 use super::Version;
+use super::{parse_body, parse_headers};
 
 #[derive(Debug)]
 pub struct Request {

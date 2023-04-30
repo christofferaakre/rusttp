@@ -1,4 +1,4 @@
-use http_server::http::{Message, Request, Response};
+use http_server::http::{Body, Message, Request, Response};
 use std::io::{self};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
@@ -10,10 +10,14 @@ use log::{debug, info, warn};
 const DEFAULT_PORT: u16 = 8080;
 
 async fn handle_request(request: Request) -> Response {
+    let body_contents = String::from("hello from Rust").as_bytes().to_vec();
+
     let message = Message {
         version: request.message.version,
         headers: Vec::new(),
-        body: None,
+        body: Some(Body {
+            contents: body_contents,
+        }),
     };
 
     Response {

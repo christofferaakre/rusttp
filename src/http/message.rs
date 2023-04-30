@@ -1,6 +1,6 @@
 use crate::http::Body;
-use crate::http::Version;
 use crate::http::Header;
+use crate::http::Version;
 
 #[derive(Debug)]
 pub struct Message {
