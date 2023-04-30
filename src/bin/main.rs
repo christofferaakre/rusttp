@@ -1,4 +1,5 @@
 use std::io::{self, ErrorKind};
+use http_server::http::Request;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::{TcpListener, TcpStream},
@@ -16,22 +17,33 @@ async fn process_socket(mut socket: TcpStream) {
     let peer_addr = socket.peer_addr().unwrap();
     info!("New connection: {peer_addr:?}");
 
-    loop {
-        match socket.read(&mut buffer).await {
-            Ok(r) if r > 0 => match String::from_utf8(buffer[..r].to_vec()) {
-                Ok(s) => {
-                    info!("Received data from {}: {}", peer_addr, s);
+    match socket.read(&mut buffer).await {
+        Ok(n_bytes) => {
+            if n_bytes > 0 {
+                match String::from_utf8(buffer[..n_bytes].to_vec()) {
+                    Ok(s) => {
+                        debug!("Received data from {}: {}", peer_addr, s);
+                        let request = Request::try_from(s);
+                        info!("Request: {:?}", request);
+                    }
+                    Err(_err) => {
+                        warn!(
+                            "Received {n_bytes} bytes from {peer_addr}, but could not parse them to UTF8",
+                        );
+                    }
                 }
-                Err(err) => {
-                    debug!("Received {} bytes from {}: {:?}", r, peer_addr, &buffer[..r]);
-                }
-            },
-            _ => {
-                info!("Connection terminated.");
-                break;
+            } else {
+                warn!("Accepted a connection from {peer_addr} but received no data");
             }
         }
+
+        Err(err) => {
+            debug!("Socket read error: {err:?}");
+        }
     }
+    
+    info!("Connection to {peer_addr} terminated");
+
 }
 
 const LOG_VAR: &str = "RUST_LOG";
