@@ -1,10 +1,27 @@
 use log::debug;
 use std::fmt::Display;
 
+pub mod headers {
+    pub const CONTENT_TYPE: &str = "Content-Type";
+    pub mod content_type {
+        pub const TEXT_PLAIN: &str = "text/plain";
+        pub const TEXT_HTML: &str = "text/html";
+    }
+}
+
 #[derive(Debug)]
 pub struct Header {
     name: String,
     value: String,
+}
+
+impl Header {
+    pub fn new(name: &str, value: &str) -> Self {
+        Self {
+            name: name.to_owned(),
+            value: value.to_owned(),
+        }
+    }
 }
 
 impl Display for Header {

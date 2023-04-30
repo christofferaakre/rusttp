@@ -23,7 +23,7 @@ impl Response {
             None => String::new(),
         };
 
-        let response_str = format!("{first_line}\n{headers_string}\n{body_lines}");
+        let response_str = format!("{first_line}\n{headers_string}\n\n{body_lines}");
 
         response_str.as_bytes().to_vec()
     }

@@ -1,4 +1,7 @@
-use http_server::http::{Body, Message, Request, Response};
+use http_server::http::{
+    header::headers::{content_type::TEXT_HTML, CONTENT_TYPE},
+    Body, Header, Message, Request, Response,
+};
 use std::io::{self};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
@@ -10,11 +13,12 @@ use log::{debug, info, warn};
 const DEFAULT_PORT: u16 = 8080;
 
 async fn handle_request(request: Request) -> Response {
-    let body_contents = String::from("hello from Rust").as_bytes().to_vec();
+    let body_contents = include_str!("../../data/index.html").as_bytes().to_vec();
+    let headers = vec![Header::new(CONTENT_TYPE, TEXT_HTML)];
 
     let message = Message {
         version: request.message.version,
-        headers: Vec::new(),
+        headers,
         body: Some(Body {
             contents: body_contents,
         }),
@@ -95,6 +99,6 @@ async fn main() -> io::Result<()> {
 
     loop {
         let (socket, _) = listener.accept().await?;
-        process_socket(socket).await;
+        tokio::spawn(process_socket(socket));
     }
 }

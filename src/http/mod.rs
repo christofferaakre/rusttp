@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-mod header;
+pub mod header;
 mod message;
 mod request;
 mod response;
